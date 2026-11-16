@@ -70,4 +70,4 @@ npm test
 - `plugin/extension/vendor/pyodide/` 是扩展内置 Python 引擎所需的固定版本依赖，`assets/katex.js` 与 `mermaid.js` 是离线渲染资源，均为构建产物但运行时必需，因此随源码一起提供。
 - `plugin/tests/fixtures/` 中的对话与 token 均为 mock 数据，不含真实账号信息。
 - 本机 Python 虚拟环境、pip 缓存、导出成品和个人笔记未包含在仓库中。
-- 本项目暂未附带 LICENSE，如需开源授权请自行添加。
+- 本项目采用 MIT 许可证，详见 [LICENSE](LICENSE)。内置的 KaTeX、Mermaid、highlight.js、Lucide、Pyodide 等第三方资源许可见各自目录下的 LICENSE 文件。
