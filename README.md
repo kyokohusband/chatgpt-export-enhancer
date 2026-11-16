@@ -1,5 +1,7 @@
 # 会话导出增强器
 
+> 语言：[中文](README.md) · [English](README.en.md)
+
 把 ChatGPT 对话导出为**可离线交互的 HTML**，也支持 Markdown / JSON / 纯文本。核心思路是走 ChatGPT 官方接口拿原始 Markdown（代码块不会因页面懒渲染而丢失），再用内置的 Python 引擎转换成与桌面端一致的交互式页面。
 
 项目由三部分组成：
