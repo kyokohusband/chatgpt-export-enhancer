@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>会话导出增强器</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="top">
+    <img class="logo" src="../icons/icon48.png" alt="">
+    <div>
+      <h1>会话导出增强器</h1>
+      <p id="site" class="sub">正在检测页面…</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="stat">
+      <span id="count" class="count">—</span>
+      <span class="unit">条消息</span>
+    </div>
+    <p id="title" class="doc-title">—</p>
+  </div>
+
+  <button id="open" class="btn primary" type="button">打开导出面板</button>
+  <div class="row">
+    <button id="quickAll" class="btn ghost" type="button">快速导出整段</button>
+    <button id="options" class="btn ghost" type="button">设置</button>
+  </div>
+
+  <p id="hint" class="hint">快捷键 Alt+Shift+E 可随时打开或收起面板。</p>
+
+  <script src="../shared/defaults.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

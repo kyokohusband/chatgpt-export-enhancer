@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Python 类教程（懒加载模拟） - ChatGPT</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body { font: 15px/1.75 -apple-system, "Segoe UI", system-ui, sans-serif; color: #0d0d0d; background: #fff; }
+  main { height: 100vh; overflow-y: auto; }
+  #conv { padding-bottom: 40vh; }
+  article { max-width: 780px; margin: 0 auto; padding: 14px 24px; }
+  article[data-turn="user"] { font-weight: 500; }
+  .whitespace-pre-wrap { white-space: pre-wrap; }
+  h1, h2 { line-height: 1.3; margin: 18px 0 8px; }
+  ul { margin: 8px 0; padding-left: 22px; }
+  .code-shell { border: 1px solid #e3e3e3; border-radius: 10px; margin: 14px 0; overflow: hidden; }
+  .code-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background: #f4f4f4; font-size: 12px; color: #555; }
+  .code-head button { font-size: 12px; padding: 2px 8px; border: 1px solid #d9d9d9; background: #fff; border-radius: 6px; }
+  .code-body { min-height: 28px; }
+  .code-body pre { margin: 0; padding: 12px 14px; background: #f7f7f8; overflow-x: auto; font: 12.5px/1.6 ui-monospace, Consolas, monospace; }
+  .skeleton { height: 96px; background: linear-gradient(90deg, #f2f2f3 25%, #e9e9eb 50%, #f2f2f3 75%); background-size: 300% 100%; animation: sk 1.2s infinite; }
+  @keyframes sk { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+</style>
+</head>
+<body>
+<main id="scroll"><div id="conv"></div></main>
+<script>
+(function () {
+  // 复现真实 ChatGPT 的懒渲染：代码块只有滚进视口才会把 <pre> 挂到 DOM 上，
+  // 没渲染时 DOM 里只有一个「语言标签 + 骨架」的外壳。
+  const CODES = [
+    { lang: 'Python', code: 'class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\n    def __repr__(self):\n        return f"Student({self.name!r}, {self.age})"' },
+    { lang: 'Python', code: 'stu = Student("小明", 18)\nprint(stu.name)\nprint(stu)' },
+    { lang: 'Python', code: 'class Person:\n    species = "human"       # 类属性\n\n    def __init__(self, name):\n        self.name = name    # 实例属性\n\np = Person("Ada")\nprint(p.species, p.name)' },
+    { lang: 'Bash', code: 'python -c "from dataclasses import dataclass; print(dataclass)"' },
+    { lang: 'Python', code: '@property\ndef score(self):\n    return self._score\n\n@score.setter\ndef score(self, value):\n    if not 0 <= value <= 100:\n        raise ValueError("0-100")\n    self._score = value' },
+    { lang: 'JavaScript', code: 'class Box {\n  constructor(value) {\n    this.value = value;\n  }\n  get() { return this.value; }\n}' },
+    { lang: 'Python', code: 'from dataclasses import dataclass, field\n\n@dataclass(order=True)\nclass Point:\n    x: float = 0.0\n    y: float = 0.0\n    tags: list[str] = field(default_factory=list)' },
+    { lang: 'Python', code: 'class Base:\n    def greet(self):\n        return "base"\n\nclass Child(Base):\n    def greet(self):\n        return "child -> " + super().greet()' }
+  ];
+
+  const conv = document.getElementById('conv');
+  const scroll = document.getElementById('scroll');
+  let turn = 0;
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function userTurn(text) {
+    const a = document.createElement('article');
+    a.setAttribute('data-testid', 'conversation-turn-' + ++turn);
+    a.setAttribute('data-turn', 'user');
+    a.innerHTML = '<div data-message-author-role="user"><div class="whitespace-pre-wrap"></div></div>';
+    a.querySelector('.whitespace-pre-wrap').textContent = text;
+    return a;
+  }
+
+  function codeShell(idx) {
+    const item = CODES[idx % CODES.length];
+    const wrap = document.createElement('div');
+    wrap.className = 'code-shell';
+    wrap.dataset.code = item.code;
+    wrap.dataset.lang = item.lang;
+    wrap.innerHTML =
+      '<div class="code-head"><span>' + item.lang + '</span><button>复制代码</button></div>' +
+      '<div class="code-body"><div class="skeleton"></div></div>';
+    lazy.observe(wrap);
+    return wrap;
+  }
+
+  function assistantTurn(n) {
+    const a = document.createElement('article');
+    a.setAttribute('data-testid', 'conversation-turn-' + ++turn);
+    a.setAttribute('data-turn', 'assistant');
+    const holder = document.createElement('div');
+    holder.setAttribute('data-message-author-role', 'assistant');
+    const md = document.createElement('div');
+    md.className = 'markdown prose';
+    md.innerHTML =
+      '<h1>第 ' + n + ' 节：类的用法</h1>' +
+      '<p>先说结论：类把<b>数据</b>和<b>操作</b>收在同一个抽象里。下面这段解释会占几行，用来把内容撑长。</p>' +
+      '<p>不用类的时候，我们用字典保存学生信息，再把函数散落在各处。这种方式当然可以运行，但当项目变复杂时会出现一些问题：</p>' +
+      '<ul><li><p>数据结构可能不统一。</p></li><li><p>相关操作散落在不同函数中。</p></li><li><p>很难统一管理。</p></li></ul>' +
+      '<p>先看代码：</p>';
+
+    md.appendChild(codeShell(n * 2));
+    md.insertAdjacentHTML('beforeend',
+      '<p>这定义了一个类。可以创建对象：</p>');
+    md.appendChild(codeShell(n * 2 + 1));
+    md.insertAdjacentHTML('beforeend',
+      '<p>这里存在两个不同的概念，需要分别理解：实例属性属于对象，类属性属于类本身。</p>' +
+      '<h2>小结</h2>' +
+      '<p>把上面的例子跑一遍，再回答下面的问题就清楚了。下一节继续讲继承与多态。</p>');
+
+    holder.appendChild(md);
+    a.appendChild(holder);
+    return a;
+  }
+
+  const lazy = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const shell = entry.target;
+        if (shell.dataset.rendered === '1') continue;
+        shell.dataset.rendered = '1';
+        const body = shell.querySelector('.code-body');
+        body.innerHTML = '<pre><code>' + esc(shell.dataset.code) + '</code></pre>';
+        lazy.unobserve(shell);
+      }
+    },
+    { root: scroll, rootMargin: '120px' }
+  );
+
+  const QUESTIONS = [
+    '给我详细讲一下python的类',
+    '类属性和实例属性有什么区别？',
+    '继承的时候 super() 到底做了什么？',
+    'property 装饰器怎么用？',
+    'dataclass 和普通类有什么不同？',
+    '多个类之间怎么组合？',
+    '魔法方法一般有哪些？',
+    '怎么判断两个对象相等？',
+    '为什么要有 __slots__？',
+    '抽象基类有必要吗？',
+    '类方法能访问实例属性吗？',
+    '单例用类怎么写？',
+    '类会被垃圾回收吗？',
+    '怎么动态给类加方法？',
+    'mixin 是什么模式？',
+    '如何实现一个简单的 ORM？',
+    '继承 depth 太深怎么办？',
+    '怎么给类写单元测试？',
+    '类型标注要怎么写？',
+    '这些知识怎么串起来？'
+  ];
+
+  QUESTIONS.forEach((q, i) => {
+    conv.appendChild(userTurn(q));
+    conv.appendChild(assistantTurn(i + 1));
+  });
+
+  window.__lazyStats = () => ({
+    pre: document.querySelectorAll('pre').length,
+    shells: document.querySelectorAll('.code-shell').length,
+    rendered: document.querySelectorAll('.code-shell[data-rendered="1"]').length,
+    scrollHeight: scroll.scrollHeight
+  });
+})();
+</script>
+</body>
+</html>

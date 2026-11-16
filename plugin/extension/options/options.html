@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>会话导出增强器 · 设置</title>
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <img src="../icons/icon128.png" alt="" class="hero-logo">
+    <div>
+      <h1>会话导出增强器</h1>
+      <p class="hero-sub">整段会话或勾选的消息，一键导出为可离线阅读的 HTML / Markdown / JSON / 纯文本。</p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>导出默认值</h2>
+    <div class="grid">
+      <label class="field">
+        <span>默认格式</span>
+        <select id="format">
+          <option value="html">HTML（可交给「导出增强器」）</option>
+          <option value="markdown">Markdown</option>
+          <option value="json">JSON</option>
+          <option value="text">纯文本</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>默认范围</span>
+        <select id="scope">
+          <option value="all">整段会话</option>
+          <option value="selected">选中的消息</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>下载子目录</span>
+        <input id="subfolder" type="text" spellcheck="false" placeholder="会话导出">
+        <em>相对浏览器下载目录，留空则直接存到下载目录</em>
+      </label>
+
+      <label class="field">
+        <span>图片处理</span>
+        <select id="imageMode">
+          <option value="link">保留原始链接（推荐，文件小）</option>
+          <option value="inline">内联 dataURL（离线可看，文件大）</option>
+          <option value="alt">只保留占位文字</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>行为</h2>
+    <div class="row">
+      <label class="field">
+        <span>转换引擎</span>
+        <select id="engine">
+          <option value="python">Python（跑原版 converter.py，与桌面端输出完全一致）</option>
+          <option value="js">JS（内置移植版，启动快，结果可能有细微差异）</option>
+        </select>
+      </label>
+    </div>
+    <p class="hint">Python 引擎把 CPython 编译成 WebAssembly 打进插件，直接用桌面端那份转换代码，因此导出的文件和桌面程序转换出来的逐字节相同。代价是插件体积大一些，首次导出会多等 1~2 秒。</p>
+    <div class="engine-test">
+      <button id="testEngine" class="btn ghost" type="button">测试 Python 引擎</button>
+      <span id="engineResult" class="hint">点一下确认插件内的 Python 能正常启动</span>
+    </div>
+    <label class="check"><input id="interactive" type="checkbox"><span>HTML 直接产出可交互页面（内嵌组件运行时 / 代码高亮 / 目录，文件约 0.5 MB 起）</span></label>
+    <label class="check"><input id="includeMeta" type="checkbox"><span>导出文件里写入标题、来源链接、导出时间</span></label>
+    <label class="check"><input id="includeCss" type="checkbox"><span>HTML 内嵌阅读样式（关掉后是裸 HTML）</span></label>
+    <label class="check"><input id="autoLoad" type="checkbox"><span>打开面板时自动向上滚动，加载更早的消息</span></label>
+    <label class="check"><input id="collapseAfterExport" type="checkbox"><span>导出后自动收起面板</span></label>
+    <label class="check"><input id="saveAs" type="checkbox"><span>每次导出都询问保存位置</span></label>
+  </section>
+
+  <section class="card">
+    <h2>使用方式</h2>
+    <ol class="steps">
+      <li>在对话页面右下角点蓝色气泡（或按 <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>）。</li>
+      <li>选「整段会话」直接导出；选「选中的消息」后勾选需要的问答再导出。</li>
+      <li>导出的 HTML 已经把组件运行时、代码高亮、右侧目录都内嵌好了，双击离线打开就是可交互页面。</li>
+      <li>如果关掉了「直接产出可交互页面」，得到的是静态 HTML，可再拖进「导出增强器」桌面程序转换。</li>
+    </ol>
+    <p class="desc">仅在 ChatGPT 页面启用。</p>
+  </section>
+
+  <footer class="foot">
+    <button id="reset" class="btn ghost" type="button">恢复默认</button>
+    <span id="saved" class="saved" hidden>已保存</span>
+  </footer>
+</main>
+<script src="../shared/defaults.js"></script>
+<script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{
+  "title": "组件使用教程",
+  "create_time": 1762200000.0,
+  "update_time": 1762203600.0,
+  "current_node": "a-final",
+  "mapping": {
+    "root": {
+      "id": "root",
+      "message": null,
+      "parent": null,
+      "children": [
+        "sys"
+      ]
+    },
+    "sys": {
+      "id": "sys",
+      "parent": "root",
+      "children": [
+        "u1"
+      ],
+      "message": {
+        "id": "sys",
+        "author": {
+          "role": "system"
+        },
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "You are ChatGPT."
+          ]
+        },
+        "metadata": {
+          "is_visually_hidden_from_conversation": true
+        },
+        "create_time": 1762199900.0
+      }
+    },
+    "u1": {
+      "id": "u1",
+      "parent": "sys",
+      "children": [
+        "a-tool"
+      ],
+      "message": {
+        "id": "u1",
+        "author": {
+          "role": "user"
+        },
+        "content": {
+          "content_type": "multimodal_text",
+          "parts": [
+            "给我一份组件使用教程，包含代码、表格和参数说明。",
+            {
+              "content_type": "image_asset_pointer",
+              "asset_pointer": "file-service://file-abc123"
+            }
+          ]
+        },
+        "metadata": {
+          "attachments": [
+            {
+              "id": "file-abc123",
+              "name": "截图.png",
+              "size": 1234
+            }
+          ]
+        },
+        "create_time": 1762200100.0
+      }
+    },
+    "a-tool": {
+      "id": "a-tool",
+      "parent": "u1",
+      "children": [
+        "a-1"
+      ],
+      "message": {
+        "id": "a-tool",
+        "author": {
+          "role": "assistant"
+        },
+        "recipient": "python",
+        "content": {
+          "content_type": "code",
+          "text": "print('hi')"
+        },
+        "create_time": 1762200200.0
+      }
+    },
+    "a-1": {
+      "id": "a-1",
+      "parent": "a-tool",
+      "children": [
+        "u2"
+      ],
+      "message": {
+        "id": "a-1",
+        "author": {
+          "role": "assistant"
+        },
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "## 结论\n\n建议用 `seccomp` 加只读根文件系统，**CPU 配额** 限制死循环。参考 [官方文档](https://docs.docker.com/engine/security/)。\n\n### 1. 启动参数\n\n```python\nimport subprocess\n\ndef run(code: str) -> str:\n    proc = subprocess.run([\"python\", \"-c\", code], capture_output=True)\n    return proc.stdout.decode()\n```\n\n```bash\ntimeout 3s docker run --rm --network none my-sandbox:latest\n```\n\n### 2. 参数对照\n\n| 参数 | 作用 | 建议值 |\n| --- | --- | --- |\n| --memory | 内存上限 | 256m |\n| --cpus | CPU 配额 | 0.5 |\n| --network | 网络 | none |\n\n### 3. 要点\n\n- 资源限制\n  - 内存：`--memory 256m`\n  - CPU：`--cpus 0.5`\n- 超时控制\n- 文件系统只读\n\n> 注意：容器内不要留写权限。\n\n### 4. 参数速查\n\n<box border radius=\"lg\" padding={3} gap={2}>\n<text weight=\"medium\">沙箱参数速查</text>\n<row justify=\"between\"><text color=\"secondary\" size=\"sm\">内存</text><code>--memory 256m</code></row>\n<row justify=\"between\"><text color=\"secondary\" size=\"sm\">CPU</text><code>--cpus 0.5</code></row>\n{@body const [clicked,setClicked]=DIL.useState(0)}\n<button block onClick={()=>setClicked(c=>c+1)}>点击按钮{clicked>0?`（${clicked} 次）`:\"\"}</button>\n</box>\n\n### 5. 独立代码块\n\n<CodeBlock language=\"python\" editable>\nclass Person:\n    def __init__(self, name: str):\n        self.name = name\n\n    def hi(self):\n        return f\"hi {self.name}\"\n</CodeBlock>"
+          ]
+        },
+        "channel": "final",
+        "create_time": 1762200300.0
+      }
+    },
+    "u2": {
+      "id": "u2",
+      "parent": "a-1",
+      "children": [
+        "a-final"
+      ],
+      "message": {
+        "id": "u2",
+        "author": {
+          "role": "user"
+        },
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "超时怎么控制？"
+          ]
+        },
+        "create_time": 1762203400.0
+      }
+    },
+    "a-final": {
+      "id": "a-final",
+      "parent": "u2",
+      "children": [],
+      "message": {
+        "id": "a-final",
+        "author": {
+          "role": "assistant"
+        },
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "在宿主侧加超时即可：\n\n```bash\ntimeout 3s docker exec sandbox python main.py\n```\n\n超时后进程会被 SIGTERM 终止，配合 `--init` 更干净。"
+          ]
+        },
+        "channel": "final",
+        "create_time": 1762203500.0
+      }
+    }
+  }
+}

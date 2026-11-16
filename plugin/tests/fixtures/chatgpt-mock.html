@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Docker 沙箱方案 - ChatGPT</title>
+<style>
+  body { margin: 0; font: 15px/1.65 "Segoe UI", "Microsoft YaHei UI", system-ui, sans-serif; color: #1f2328; background: #fff; }
+  main { max-width: 820px; margin: 0 auto; padding: 24px 20px 80px; }
+  article { padding: 16px 4px; border-bottom: 1px solid #eceff4; }
+  .markdown h2 { font-size: 19px; margin: 18px 0 8px; }
+  .markdown p { margin: 0 0 10px; }
+  .markdown ul { margin: 0 0 10px; padding-left: 22px; }
+  .markdown pre { background: #f6f8fa; border: 1px solid #e6e9ee; border-radius: 8px; padding: 10px 12px; overflow: auto; }
+  .markdown code { background: #f1f3f6; padding: 1px 4px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; }
+  .markdown pre code { background: none; padding: 0; }
+  .markdown table { border-collapse: collapse; margin: 0 0 12px; }
+  .markdown th, .markdown td { border: 1px solid #dfe3e8; padding: 5px 10px; font-size: 14px; }
+  .markdown th { background: #f6f8fa; }
+  .markdown blockquote { margin: 0 0 12px; padding: 6px 14px; border-left: 3px solid #d0d7de; color: #4b5563; }
+  .whitespace-pre-wrap { white-space: pre-wrap; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .flex { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6b7280; padding: 4px 0; }
+  .attachment { display: inline-block; margin-top: 8px; padding: 4px 8px; border: 1px solid #e3e7ee; border-radius: 6px; font-size: 12px; color: #6b7280; }
+  button { font: inherit; }
+</style>
+</head>
+<body>
+<main id="main">
+<div class="conversation">
+
+  <article data-testid="conversation-turn-0" data-turn="user" data-turn="user" data-turn-id="u1">
+    <h5 class="sr-only">你说：</h5>
+    <div class="user-message-bubble-color" data-message-author-role="user" data-message-id="um1">
+      <div class="whitespace-pre-wrap">我在整理 Docker 沙箱方案，需要两件事：
+1. 容器启动参数怎么配
+2. 超时怎么控制</div>
+      <div class="attachment" data-testid="attachment">方案.md</div>
+    </div>
+    <div data-testid="conversation-turn-actions"><button>复制</button><button>编辑</button></div>
+  </article>
+
+  <article data-testid="conversation-turn-1" data-turn="assistant" data-turn="assistant" data-turn-id="a1">
+    <div data-message-author-role="assistant" data-message-id="am1">
+      <div class="markdown prose">
+        <h2>结论</h2>
+        <p>建议 <code>seccomp</code> + 只读根文件系统，配合容器级 <strong>CPU 配额</strong> 限制死循环。</p>
+        <ul>
+          <li>启动参数：<code>--network none</code></li>
+          <li>资源限制：<code>--memory 256m</code></li>
+          <li>超时：宿主侧 <em>3 秒</em> 强杀</li>
+        </ul>
+        <div class="relative">
+          <div class="flex"><span>Python</span><button>复制代码</button></div>
+          <div class="overflow-y-auto">
+            <pre><code>import subprocess
+
+def run(code: str) -&gt; str:
+    proc = subprocess.run(["python", "-c", code], capture_output=True)
+    return proc.stdout.decode()</code></pre>
+          </div>
+        </div>
+        <p>参数对照见下表：</p>
+        <table>
+          <thead><tr><th>参数</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr><td><code>--memory</code></td><td>内存上限</td></tr>
+            <tr><td><code>--cpus</code></td><td>CPU 配额</td></tr>
+          </tbody>
+        </table>
+        <p>延伸阅读：<a href="/docs/security">Docker 安全文档</a></p>
+        <p>&lt;box title="沙箱参数速查"&gt;</p>
+        <p>&lt;row&gt;</p>
+        <p>&lt;text&gt;--memory 256m / --cpus 0.5 / --network none&lt;/text&gt;</p>
+        <p>&lt;/row&gt;</p>
+        <p>&lt;/box&gt;</p>
+      </div>
+    </div>
+  </article>
+
+  <article data-testid="conversation-turn-2" data-turn="user" data-turn="user" data-turn-id="u2">
+    <div class="user-message-bubble-color" data-message-author-role="user" data-message-id="um2">
+      <div class="whitespace-pre-wrap">那超时之后容器会不会残留？</div>
+    </div>
+  </article>
+
+  <article data-testid="conversation-turn-3" data-turn="assistant" data-turn="assistant" data-turn-id="a2">
+    <div data-message-author-role="assistant" data-message-id="am2">
+      <div class="markdown prose">
+        <p>不会，用 <code>--rm</code> 并在宿主侧调用 <code>docker kill</code> 即可。</p>
+        <blockquote>注意：<code>--rm</code> 只在容器正常退出时生效，异常退出要靠宿主清理。</blockquote>
+        <div class="relative">
+          <div class="flex"><span>Bash</span><button>复制代码</button></div>
+          <div class="overflow-y-auto"><pre><code>timeout 3s docker run --rm --network none my-sandbox:latest</code></pre></div>
+        </div>
+        <div class="relative">
+          <div class="flex"><span>JavaScript</span><button>复制代码</button></div>
+          <div class="overflow-y-auto"><pre><code>const t = setTimeout(() =&gt; kill(id), 3000);
+clearTimeout(t);</code></pre></div>
+        </div>
+      </div>
+    </div>
+  </article>
+  <article data-testid="conversation-turn-4" data-turn-id="a3">
+    <div data-message-author-role="assistant" data-message-id="am3">
+      <div class="markdown">
+        <p>下面这个卡片可以直接点：</p>
+        <p>&lt;box border radius="lg" padding={3} gap={2}&gt;</p>
+        <p>&lt;text color="secondary" weight="medium" size="xs"&gt;点击下面按钮试试&lt;/text&gt;</p>
+        <p>{@body const [clicked,setClicked]=DIL.useState(0)}</p>
+        <p>&lt;button block onClick={()=&gt;setClicked(c=&gt;c+1)}&gt;点击按钮{clicked&gt;0?`（${clicked} 次）`:""}&lt;/button&gt;</p>
+        <p>&lt;/box&gt;</p>
+      </div>
+    </div>
+  </article>
+
+</div>
+</main>
+</body>
+</html>

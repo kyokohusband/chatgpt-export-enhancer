@@ -1,0 +1,29 @@
+{
+ "制定有效计划-2026-10-26.html": {
+  "ok": true,
+  "widgets": 10,
+  "unresolved": 0,
+  "doc_len": 199210,
+  "doc_md5": "a8c0585b849cdc8a53f21653c2483970",
+  "pages": 3,
+  "page_lens": [
+   182913,
+   179649,
+   182155
+  ],
+  "payload_md5": "de691b4ce3f62ed0b7b0356e0dd3cee9"
+ },
+ "快速阅读小说方法-2026-10-25.html": {
+  "ok": true,
+  "widgets": 11,
+  "unresolved": 0,
+  "doc_len": 190986,
+  "doc_md5": "357ee659ea9d1efde5bb6e930b31613a",
+  "pages": 2,
+  "page_lens": [
+   179748,
+   184008
+  ],
+  "payload_md5": "b468afcd22fe95a5056cfc9227d52edd"
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "export-enhancer-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node answer-title.js && node export-title.js && node split-export.js && node split-scroll.js && node math-render.js && node image-export.js && node image-api-export.js && node async-image-placeholder.js && node icon-regression.js && node badge-render.js && node widget-markdown-table.js && node widget-markdown-list.js && node widget-escape.js && node widget-stage-layout.js && node bubble-drag.js && node conversation-refresh.js && node spa-newchat.js && node chatgpt-only.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}
